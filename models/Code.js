@@ -1,8 +1,18 @@
 const mongoose = require("mongoose");
 
-delete mongoose.connection.models["code"];
+if (mongoose.connection) {
+  delete mongoose.connection.models["code"];
+}
 
 const codeSchema = new mongoose.Schema({
+  fontFamily: {
+    type: String,
+    required: true,
+  },
+  fontSize: {
+    type: String,
+    required: true,
+  },
   content: {
     type: String,
     required: true,

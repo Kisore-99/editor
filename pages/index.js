@@ -15,11 +15,19 @@ export const getServerSideProps = async () => {
   dbConfig();
   const data = await Code.find({});
   console.log(data);
-  const { _id, content } = data[0];
-  return { props: { _id: _id.toString(), content: content.toString() } };
+  const { _id, content, fontFamily, fontSize } = data[0];
+  return {
+    props: {
+      _id: _id.toString(),
+      content: content.toString(),
+      fontFamily: fontFamily.toString(),
+      fontSize: fontSize.toString(),
+    },
+  };
 };
 
-const Home = ({ _id, content }) => {
+const Home = ({ _id, content, fontFamily, fontSize }) => {
+  console.log(fontFamily, fontSize);
   const exampleCode = content;
   const AUTOSAVE_INTERVAL = 3000;
   const exportRef = useRef();
@@ -27,8 +35,8 @@ const Home = ({ _id, content }) => {
   const [code, setCode] = useState(exampleCode);
   const [styles, setStyles] = useState({
     boxSizing: "border-box",
-    fontFamily: '"Inconsolata", sans-serif',
-    fontSize: "14px",
+    fontFamily,
+    fontSize,
     ...theme.plain,
   });
   const [selectedLanguage, setSelectedLanguage] = useState("jsx");
@@ -45,6 +53,8 @@ const Home = ({ _id, content }) => {
       if (code !== currentCode) {
         const res = await axios.put("/api/code", {
           content: currentCode,
+          fontFamily,
+          fontSize,
           id: _id,
         });
       }
@@ -101,6 +111,8 @@ const Home = ({ _id, content }) => {
       const res = await axios.put("/api/code", {
         content: currentCode,
         id: _id,
+        fontFamily: styles.fontFamily,
+        fontSize: styles.fontSize,
       });
     } catch (err) {
       console.log(err);
@@ -200,12 +212,11 @@ const Home = ({ _id, content }) => {
           rel="stylesheet"
         />
       </Head>
-      <body style={{ background: "black" }}></body>
       <Segment style={{ background: "black", border: "1px solid #fff" }}>
         <Dropdown
           placeholder="select font size"
           closeOnEscape={false}
-          defaultValue={sizeOptions[1].value}
+          defaultValue={styles.fontSize ? styles.fontSize : sizeOptions[0].value}
           selection
           options={sizeOptions}
           onChange={increaseFontSize}
@@ -221,7 +232,7 @@ const Home = ({ _id, content }) => {
         <Dropdown
           placeholder="select font family"
           closeOnEscape={false}
-          defaultValue={fontFamilyOptions[0].value}
+          defaultValue={styles.fontFamily ? styles.fontFamily : fontFamilyOptions[0].value}
           selection
           options={fontFamilyOptions}
           onChange={selectFontFamily}

@@ -32,7 +32,11 @@ export default async (request, response) => {
         console.log(request.body);
         const data = await Code.findOneAndUpdate(
           { _id: request.body.id },
-          { content: request.body.content },
+          {
+            content: request.body.content,
+            fontFamily: request.body.fontFamily,
+            fontSize: request.body.fontSize,
+          },
           { new: true }
         );
         console.log("updated-->", data);

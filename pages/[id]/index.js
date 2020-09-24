@@ -14,20 +14,21 @@ export const getServerSideProps = async ({ query: { id } }) => {
   dbConfig();
   const data = await Code.findById({ _id: id });
   console.log("found content-->", data);
-  const { content } = data;
-  return { props: { content } };
+  const { content, fontFamily, fontSize } = data;
+  return { props: { content, fontFamily, fontSize } };
 };
 
-const CodeEditor = ({ content }) => {
+const CodeEditor = ({ content, fontFamily, fontSize }) => {
   const [code, setCode] = useState(content);
   const [selectedLanguage, setSelectedLanguage] = useState("jsx");
   const [styles, setStyles] = useState({
     boxSizing: "border-box",
-    fontFamily: '"Inconsolata", sans-serif',
-    fontSize: "14px",
+    fontFamily,
+    fontSize,
     ...theme.plain,
   });
 
+  console.log(styles.fontFamily);
   const highlight = (code) => {
     // const theme = React.lazy(() => import("prism-react-renderer/themes/oceanicNext"));
     return (
@@ -132,15 +133,15 @@ const CodeEditor = ({ content }) => {
       <body style={{ background: "black" }}></body>
       <Segment style={{ background: "black", border: "1px solid #fff" }}>
         <Dropdown
-          placeholder="select font size"
+          disabled
           closeOnEscape={false}
-          defaultValue={sizeOptions[1].value}
+          defaultValue={styles.fontSize ? styles.fontSize : sizeOptions[1].value}
           selection
           options={sizeOptions}
           onChange={increaseFontSize}
         />
         <Dropdown
-          placeholder="select font size"
+          disabled
           closeOnEscape={false}
           defaultValue={languageOptions[0].value}
           selection
@@ -149,15 +150,17 @@ const CodeEditor = ({ content }) => {
         />
         <Dropdown
           placeholder="select font family"
+          disabled
           closeOnEscape={false}
-          defaultValue={fontFamilyOptions[0].value}
+          defaultValue={!styles.fontFamily ? fontFamilyOptions[0].value : styles.fontFamily}
           selection
           options={fontFamilyOptions}
           onChange={selectFontFamily}
         />
         <Button.Group color="teal">
-          <Button>Export</Button>
+          <Button disabled>Export</Button>
           <Dropdown
+            disabled
             className="button icon"
             floating
             options={exportOptions}
