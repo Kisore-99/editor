@@ -7,6 +7,17 @@ import Highlight, { defaultProps } from "prism-react-renderer";
 import { Segment, Button, Dropdown, Label, Popup, Grid, Header } from "semantic-ui-react";
 import axios from "axios";
 
+import dbConfig from "../../utils/dbConfig";
+import Code from "../../models/Code";
+
+export const getServerSideProps = async ({ query: { id } }) => {
+  dbConfig();
+  const data = await Code.findById({ _id: id });
+  console.log("found content-->", data);
+  const { content } = data;
+  return { props: { content } };
+};
+
 const CodeEditor = ({ content }) => {
   const [code, setCode] = useState(content);
   const [selectedLanguage, setSelectedLanguage] = useState("jsx");
@@ -188,13 +199,13 @@ const CodeEditor = ({ content }) => {
   );
 };
 
-CodeEditor.getInitialProps = async ({ query: { id } }) => {
-  console.log(id);
-  const res = await axios.get(`http://localhost:3000/api/code/${id}`);
-  // const { data } = await res.json();
-  return {
-    content: res.data.data.content,
-  };
-};
+// CodeEditor.getInitialProps = async ({ query: { id } }) => {
+//   console.log(id);
+//   const res = await axios.get(`http://localhost:3000/api/code/${id}`);
+//   // const { data } = await res.json();
+//   return {
+//     content: res.data.data.content,
+//   };
+// };
 
 export default CodeEditor;

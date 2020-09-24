@@ -5,13 +5,24 @@ import theme from "prism-react-renderer/themes/dracula";
 import { Segment, Button, Dropdown, Label, Popup, Grid, Header } from "semantic-ui-react";
 import axios from "axios";
 
+import dbConfig from "../utils/dbConfig";
+import Code from "../models/Code";
+
 import homeStyles from "../styles/Home.module.css";
 import Head from "next/head";
 // import { exportComponentAsJPEG } from "react-component-export-image";
 
-const Home = ({ content }) => {
-  const exampleCode = content.data[0].content;
-  console.log(content.data[0]);
+export const getServerSideProps = async () => {
+  dbConfig();
+  const data = await Code.find({});
+  console.log("fetched data-->", data);
+  const { _id, content } = data[0];
+  return { props: { _id: _id.toString(), content: content.toString() } };
+};
+
+const Home = ({ _id, content }) => {
+  const exampleCode = content;
+  console.log(content);
   const AUTOSAVE_INTERVAL = 3000;
   const exportRef = useRef();
   const [currentCode, setCurrentCode] = useState(exampleCode);
@@ -35,9 +46,9 @@ const Home = ({ content }) => {
       console.log(code, currentCode);
       if (code !== currentCode) {
         console.log("inside if----");
-        const res = await axios.put("http://localhost:3000/api/code", {
+        const res = await axios.put("/api/code", {
           content: currentCode,
-          id: content.data[0]._id,
+          id: _id,
         });
       }
     }, AUTOSAVE_INTERVAL);
@@ -88,7 +99,7 @@ const Home = ({ content }) => {
 
   const saveCode = async () => {
     try {
-      const res = await axios.post("http://localhost:3000/api/code", { content: code });
+      const res = await axios.post("/api/code", { content: code });
     } catch (err) {
       console.log(err);
     }
@@ -269,7 +280,7 @@ const Home = ({ content }) => {
           <Grid centered divided columns={1}>
             <Grid.Column textAlign="center">
               <Header as="h4">Copy the link</Header>
-              <input disabled ref={textAreaRef} value={`${host}/${content.data[0]._id}`} />
+              <input disabled ref={textAreaRef} value={`${host}/${_id}`} />
               <Button onClick={copyToCliboard}>Copy</Button>
             </Grid.Column>
           </Grid>
@@ -277,7 +288,6 @@ const Home = ({ content }) => {
       </Segment>
       <div ref={exportRef}>
         <Segment
-          disabled={true}
           padded
           raised
           style={{
@@ -298,7 +308,7 @@ const Home = ({ content }) => {
             <Label circular color="yellow" size="mini" style={{ fontSize: "0.4em" }} />
             <Editor
               value={currentCode}
-              // onValueChange={onValueChange}
+              onValueChange={onValueChange}
               highlight={highlight}
               padding={10}
               id="exportComponent"
@@ -314,8 +324,4 @@ const Home = ({ content }) => {
   );
 };
 
-Home.getInitialProps = async () => {
-  const res = await axios.get("http://localhost:3000/api/code");
-  return { content: res.data };
-};
 export default Home;
