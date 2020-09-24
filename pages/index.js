@@ -2,21 +2,19 @@ import React, { Fragment, useState, useEffect, useRef } from "react";
 import Editor from "react-simple-code-editor";
 import Highlight, { defaultProps } from "prism-react-renderer";
 import theme from "prism-react-renderer/themes/dracula";
-import { Segment, Button, Dropdown, Label } from "semantic-ui-react";
-import html2canvas from "html2canvas";
+import { Segment, Button, Dropdown, Label, Popup, Grid, Header } from "semantic-ui-react";
+import axios from "axios";
 
 import homeStyles from "../styles/Home.module.css";
 import Head from "next/head";
 // import { exportComponentAsJPEG } from "react-component-export-image";
 
-function Home() {
-  const exampleCode = `
-  function greet(){
-    <h2>Hola!!</h2>
-  }
-`;
-
+const Home = ({ content }) => {
+  const exampleCode = content.data[0].content;
+  console.log(content.data[0]);
+  const AUTOSAVE_INTERVAL = 3000;
   const exportRef = useRef();
+  const [currentCode, setCurrentCode] = useState(exampleCode);
   const [code, setCode] = useState(exampleCode);
   const [styles, setStyles] = useState({
     boxSizing: "border-box",
@@ -25,15 +23,35 @@ function Home() {
     ...theme.plain,
   });
   const [selectedLanguage, setSelectedLanguage] = useState("jsx");
-  const [selectedTheme, setSelectedTheme] = useState("");
+  const [host, setHost] = useState("");
+  const textAreaRef = useRef(null);
 
+  useEffect(() => {
+    setHost(window.location.origin);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      console.log(code, currentCode);
+      if (code !== currentCode) {
+        console.log("inside if----");
+        const res = await axios.put("http://localhost:3000/api/code", {
+          content: currentCode,
+          id: content.data[0]._id,
+        });
+      }
+    }, AUTOSAVE_INTERVAL);
+    return () => clearTimeout(timer);
+  }, [currentCode]);
+
+  console.log(host);
   // useEffect(() => {
   //   setSelectedTheme(React.lazy(() => import("prism-react-renderer/themes/oceanicNext")));
   // }, []);
   // console.log(selectedTheme);
 
   const onValueChange = (code) => {
-    setCode(code);
+    setCurrentCode(code);
     // setSelectedTheme(React.lazy(() => import("prism-react-renderer/themes/dracula")));
   };
 
@@ -68,6 +86,20 @@ function Home() {
     setStyles({ ...styles, fontFamily: `${value}, sans-serif` });
   };
 
+  const saveCode = async () => {
+    try {
+      const res = await axios.post("http://localhost:3000/api/code", { content: code });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const copyToCliboard = (e) => {
+    textAreaRef.current.select();
+    document.execCommand("copy");
+    e.target.focus();
+  };
+
   const exportCode = (e, { value }) => {
     console.log(value);
     // exportComponentAsJPEG(exportRef);
@@ -90,14 +122,45 @@ function Home() {
     //   a.click();
     // });
 
-    html2canvas(window.document.getElementById("exportComponent")).then((canvas) => {
-      console.log(canvas);
-      let image = canvas.toDataURL("png");
-      let a = document.createElement("a");
-      a.setAttribute("download", "myImage.png");
-      a.setAttribute("href", image);
-      a.click();
+    html2canvas(document.getElementById("exportComponent"), {
+      onrendered: (canvas) => {
+        console.log(canvas);
+        // let image = canvas.toDataURL("png");
+        // let a = document.createElement("a");
+        // a.setAttribute("download", "myImage.png");
+        // a.setAttribute("href", image);
+        // a.click();
+        var link = document.createElement("a");
+        document.body.appendChild(link);
+        link.download = "html_image.png";
+        link.href = canvas.toDataURL("image/png");
+        link.target = "_blank";
+        console.log(document.body);
+        link.click();
+        // // let el = document.getElementById(a.id);
+        // // el.parentNode.removeChild(el);
+        // console.log(a.id);
+        // var myImage = canvas.toDataURL("image/png");
+        // window.open(myImage, "Image");
+        // var a = document.createElement("a");
+        // // toDataURL defaults to png, so we need to request a jpeg, then convert for file download.
+        // a.href = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+        // // document.body.appendChild(a);
+
+        // a.download = "somefilename.jpg";
+        // a.click();
+        // a.remove();
+        // console.log(a.remove());
+      },
     });
+    // html2canvas(window.document.getElementById("exportComponent")).then((canvas) => {
+    //   console.log(canvas);
+    //   let image = canvas.toDataURL("png");
+    //   let a = document.createElement("a");
+    //   a.setAttribute("download", "myImage.png");
+    //   a.setAttribute("href", image);
+    //   a.click();
+    // });
     //   var a = document.createElement("a");
     //   // toDataURL defaults to png, so we need to request a jpeg, then convert for file download.
     //   a.href = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
@@ -142,9 +205,14 @@ function Home() {
     { key: "Kanit", text: "Kanit", value: "Kanit" },
   ];
 
+  // const dom = new JSDOM(`<!DOCTYPE html><p>Hello world</p>`);
+  // console.log(dom.window.document.querySelector("p").textContent);
+
   return (
     <div>
       <Head>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.js"></script>
         <link
           href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@700&family=Quicksand:wght@500&family=Source+Code+Pro:ital,wght@1,600&display=swap"
           rel="stylesheet"
@@ -194,12 +262,24 @@ function Home() {
             onChange={exportCode}
           />
         </Button.Group>
+        <Button primary onClick={saveCode}>
+          Save
+        </Button>
+        <Popup trigger={<Button>Share your code</Button>} flowing hoverable>
+          <Grid centered divided columns={1}>
+            <Grid.Column textAlign="center">
+              <Header as="h4">Copy the link</Header>
+              <input disabled ref={textAreaRef} value={`${host}/${content.data[0]._id}`} />
+              <Button onClick={copyToCliboard}>Copy</Button>
+            </Grid.Column>
+          </Grid>
+        </Popup>
       </Segment>
       <div ref={exportRef}>
         <Segment
+          disabled={true}
           padded
           raised
-          id="exportComponent"
           style={{
             marginTop: "3em",
             background: "#85C1E9",
@@ -217,10 +297,11 @@ function Home() {
             <Label circular color="green" size="mini" style={{ fontSize: "0.4em" }} />
             <Label circular color="yellow" size="mini" style={{ fontSize: "0.4em" }} />
             <Editor
-              value={code}
-              onValueChange={onValueChange}
+              value={currentCode}
+              // onValueChange={onValueChange}
               highlight={highlight}
               padding={10}
+              id="exportComponent"
               style={styles}
             />
           </div>
@@ -231,5 +312,10 @@ function Home() {
       </footer>
     </div>
   );
-}
+};
+
+Home.getInitialProps = async () => {
+  const res = await axios.get("http://localhost:3000/api/code");
+  return { content: res.data };
+};
 export default Home;
