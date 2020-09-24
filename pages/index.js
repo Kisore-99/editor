@@ -10,19 +10,28 @@ import Code from "../models/Code";
 
 import homeStyles from "../styles/Home.module.css";
 import Head from "next/head";
-// import { exportComponentAsJPEG } from "react-component-export-image";
 
 export const getServerSideProps = async () => {
   dbConfig();
   const data = await Code.find({});
-  console.log("fetched data-->", data);
-  const { _id, content } = data[0];
-  return { props: { _id: _id.toString(), content: content.toString() } };
+  console.log(data);
+  if (Array.isArray(data) && data.length) {
+    const { _id, content } = data[0];
+    return { props: { _id: _id.toString(), content: content.toString() } };
+  } else {
+    return {
+      props: {
+        _id: "one",
+        content: `function greet(){
+      console.log('welcome');
+    }`,
+      },
+    };
+  }
 };
 
 const Home = ({ _id, content }) => {
   const exampleCode = content;
-  console.log(content);
   const AUTOSAVE_INTERVAL = 3000;
   const exportRef = useRef();
   const [currentCode, setCurrentCode] = useState(exampleCode);
@@ -41,21 +50,19 @@ const Home = ({ _id, content }) => {
     setHost(window.location.origin);
   }, []);
 
-  useEffect(() => {
-    const timer = setTimeout(async () => {
-      console.log(code, currentCode);
-      if (code !== currentCode) {
-        console.log("inside if----");
-        const res = await axios.put("/api/code", {
-          content: currentCode,
-          id: _id,
-        });
-      }
-    }, AUTOSAVE_INTERVAL);
-    return () => clearTimeout(timer);
-  }, [currentCode]);
+  // useEffect(() => {
+  //   const timer = setTimeout(async () => {
+  //     console.log(code, currentCode);
+  //     if (code !== currentCode) {
+  //       const res = await axios.put("/api/code", {
+  //         content: currentCode,
+  //         id: _id,
+  //       });
+  //     }
+  //   }, AUTOSAVE_INTERVAL);
+  //   return () => clearTimeout(timer);
+  // }, [currentCode]);
 
-  console.log(host);
   // useEffect(() => {
   //   setSelectedTheme(React.lazy(() => import("prism-react-renderer/themes/oceanicNext")));
   // }, []);
@@ -99,7 +106,7 @@ const Home = ({ _id, content }) => {
 
   const saveCode = async () => {
     try {
-      const res = await axios.post("/api/code", { content: code });
+      const res = await axios.post("/api/code", { content: currentCode });
     } catch (err) {
       console.log(err);
     }
@@ -113,25 +120,6 @@ const Home = ({ _id, content }) => {
 
   const exportCode = (e, { value }) => {
     console.log(value);
-    // exportComponentAsJPEG(exportRef);
-    // let container = document.getElementById("exportComponent");
-    // // html2canvas(document.getElementById("exportComponent")).then((canvas) =>
-    // //   window.open(canvas.toDataURL("image/png"))
-    // // );
-    // let parent = container.parentNode;
-    // console.log(parent);
-    // html2canvas(container, {
-    //   letterRendering: 1,
-    //   allowTaint: true,
-    // }).then(function (canvas) {
-    //   console.log(canvas);
-    //   var a = document.createElement("a");
-    //   // toDataURL defaults to png, so we need to request a jpeg, then convert for file download.
-    //   a.href = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
-    //   document.body.appendChild(a);
-    //   a.download = "somefilename.jpg";
-    //   a.click();
-    // });
 
     html2canvas(document.getElementById("exportComponent"), {
       onrendered: (canvas) => {
@@ -164,24 +152,6 @@ const Home = ({ _id, content }) => {
         // console.log(a.remove());
       },
     });
-    // html2canvas(window.document.getElementById("exportComponent")).then((canvas) => {
-    //   console.log(canvas);
-    //   let image = canvas.toDataURL("png");
-    //   let a = document.createElement("a");
-    //   a.setAttribute("download", "myImage.png");
-    //   a.setAttribute("href", image);
-    //   a.click();
-    // });
-    //   var a = document.createElement("a");
-    //   // toDataURL defaults to png, so we need to request a jpeg, then convert for file download.
-    //   a.href = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
-    //   document.body.appendChild(a);
-    //   a.download = "somefilename.jpg";
-    //   a.click();
-    // });
-    // if (value === "png") exportComponentAsPNG(exportRef);
-    // else if (value === "jpg") exportComponentAsJPEG(exportRef);
-    // else return;
   };
 
   const sizeOptions = [
