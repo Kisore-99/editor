@@ -2,7 +2,7 @@ import React, { Fragment, useState, useEffect, useRef } from "react";
 import Editor from "react-simple-code-editor";
 import Highlight, { defaultProps } from "prism-react-renderer";
 import theme from "prism-react-renderer/themes/dracula";
-import { Segment, Button, Dropdown, Label, Popup, Grid, Header } from "semantic-ui-react";
+import { Segment, Button, Dropdown, Label, Popup, Grid, Header, Icon } from "semantic-ui-react";
 import axios from "axios";
 
 import dbConfig from "../utils/dbConfig";
@@ -15,19 +15,8 @@ export const getServerSideProps = async () => {
   dbConfig();
   const data = await Code.find({});
   console.log(data);
-  if (Array.isArray(data) && data.length) {
-    const { _id, content } = data[0];
-    return { props: { _id: _id.toString(), content: content.toString() } };
-  } else {
-    return {
-      props: {
-        _id: "one",
-        content: `function greet(){
-      console.log('welcome');
-    }`,
-      },
-    };
-  }
+  const { _id, content } = data[0];
+  return { props: { _id: _id.toString(), content: content.toString() } };
 };
 
 const Home = ({ _id, content }) => {
@@ -50,18 +39,18 @@ const Home = ({ _id, content }) => {
     setHost(window.location.origin);
   }, []);
 
-  // useEffect(() => {
-  //   const timer = setTimeout(async () => {
-  //     console.log(code, currentCode);
-  //     if (code !== currentCode) {
-  //       const res = await axios.put("/api/code", {
-  //         content: currentCode,
-  //         id: _id,
-  //       });
-  //     }
-  //   }, AUTOSAVE_INTERVAL);
-  //   return () => clearTimeout(timer);
-  // }, [currentCode]);
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      console.log(code, currentCode);
+      if (code !== currentCode) {
+        const res = await axios.put("/api/code", {
+          content: currentCode,
+          id: _id,
+        });
+      }
+    }, AUTOSAVE_INTERVAL);
+    return () => clearTimeout(timer);
+  }, [currentCode]);
 
   // useEffect(() => {
   //   setSelectedTheme(React.lazy(() => import("prism-react-renderer/themes/oceanicNext")));
@@ -106,16 +95,20 @@ const Home = ({ _id, content }) => {
 
   const saveCode = async () => {
     try {
-      const res = await axios.post("/api/code", { content: currentCode });
+      if (!_id) {
+        const res = await axios.post("/api/code", { content: currentCode });
+      }
+      const res = await axios.put("/api/code", {
+        content: currentCode,
+        id: _id,
+      });
     } catch (err) {
       console.log(err);
     }
   };
 
   const copyToCliboard = (e) => {
-    textAreaRef.current.select();
-    document.execCommand("copy");
-    e.target.focus();
+    navigator.clipboard.writeText(textAreaRef.current.value);
   };
 
   const exportCode = (e, { value }) => {
@@ -251,7 +244,7 @@ const Home = ({ _id, content }) => {
             <Grid.Column textAlign="center">
               <Header as="h4">Copy the link</Header>
               <input disabled ref={textAreaRef} value={`${host}/${_id}`} />
-              <Button onClick={copyToCliboard}>Copy</Button>
+              <Icon onClick={copyToCliboard} name="copy" />
             </Grid.Column>
           </Grid>
         </Popup>
@@ -288,7 +281,7 @@ const Home = ({ _id, content }) => {
         </Segment>
       </div>
       <footer className={homeStyles.footer}>
-        <h2 style={{ color: "#fff" }}>created by devs</h2>
+        <h2 style={{ color: "#fff" }}>Welcome to Code Editor</h2>
       </footer>
     </div>
   );
