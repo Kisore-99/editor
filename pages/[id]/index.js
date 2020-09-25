@@ -2,13 +2,15 @@ import { useState, useEffect, Fragment } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import Editor from "react-simple-code-editor";
-import theme from "prism-react-renderer/themes/dracula";
+import theme from "prism-react-renderer/themes/vsDark";
 import Highlight, { defaultProps } from "prism-react-renderer";
 import { Segment, Button, Dropdown, Label, Popup, Grid, Header } from "semantic-ui-react";
 import axios from "axios";
 
 import dbConfig from "../../utils/dbConfig";
 import Code from "../../models/Code";
+
+import homeStyles from "../../styles/Home.module.css";
 
 export const getServerSideProps = async ({ query: { id } }) => {
   dbConfig();
@@ -130,34 +132,55 @@ const CodeEditor = ({ content, fontFamily, fontSize }) => {
           rel="stylesheet"
         />
       </Head>
-      <body style={{ background: "black" }}></body>
-      <Segment style={{ background: "black", border: "1px solid #fff" }}>
-        <Dropdown
-          disabled
-          closeOnEscape={false}
-          defaultValue={styles.fontSize ? styles.fontSize : sizeOptions[1].value}
-          selection
-          options={sizeOptions}
-          onChange={increaseFontSize}
-        />
-        <Dropdown
-          disabled
-          closeOnEscape={false}
-          defaultValue={languageOptions[0].value}
-          selection
-          options={languageOptions}
-          onChange={selectLanguage}
-        />
-        <Dropdown
-          placeholder="select font family"
-          disabled
-          closeOnEscape={false}
-          defaultValue={!styles.fontFamily ? fontFamilyOptions[0].value : styles.fontFamily}
-          selection
-          options={fontFamilyOptions}
-          onChange={selectFontFamily}
-        />
-        <Button.Group color="teal">
+      <Grid centered>
+        <Header
+          as="h2"
+          style={{
+            color: "orange",
+            marginTop: "2em",
+            fontFamily: "VT323, monospace",
+            fontSize: "28px",
+          }}
+        >
+          Code Heat
+        </Header>
+      </Grid>
+      <Segment
+        style={{
+          background: "#000",
+          border: "2px solid orange",
+          marginTop: "3em",
+          marginLeft: "0.7em",
+          marginRight: "0.2em",
+        }}
+      >
+        <Grid columns={5} celled="internally" centered style={{ marginTop: "2em" }}>
+          <Dropdown
+            disabled
+            closeOnEscape={false}
+            defaultValue={styles.fontSize ? styles.fontSize : sizeOptions[1].value}
+            selection
+            options={sizeOptions}
+            onChange={increaseFontSize}
+          />
+          <Dropdown
+            disabled
+            closeOnEscape={false}
+            defaultValue={languageOptions[0].value}
+            selection
+            options={languageOptions}
+            onChange={selectLanguage}
+          />
+          <Dropdown
+            placeholder="select font family"
+            disabled
+            closeOnEscape={false}
+            defaultValue={!styles.fontFamily ? fontFamilyOptions[0].value : styles.fontFamily}
+            selection
+            options={fontFamilyOptions}
+            onChange={selectFontFamily}
+          />
+          {/* <Button.Group color="teal">
           <Button disabled>Export</Button>
           <Dropdown
             disabled
@@ -167,37 +190,44 @@ const CodeEditor = ({ content, fontFamily, fontSize }) => {
             trigger={<></>}
             onChange={exportCode}
           />
-        </Button.Group>
-      </Segment>
-      <Segment
-        padded
-        raised
-        style={{
-          marginTop: "3em",
-          background: "#85C1E9",
-          padding: "40px",
-        }}
-      >
-        <div
+        </Button.Group> */}
+        </Grid>
+
+        <Segment
+          padded
+          raised
           style={{
-            border: "1px solid black",
-            background: "black",
-            padding: "4px",
+            border: "1px solid orange",
+            marginTop: "3em",
+            background: "#B7950B",
+            padding: "40px",
           }}
         >
-          <Label circular color="red" size="mini" style={{ fontSize: "0.4em" }} />
-          <Label circular color="green" size="mini" style={{ fontSize: "0.4em" }} />
-          <Label circular color="yellow" size="mini" style={{ fontSize: "0.4em" }} />
-          <Editor
-            value={code}
-            highlight={highlight}
-            padding={10}
-            id="exportComponent"
-            onValueChange={onValueChange}
-            style={styles}
-          />
-        </div>
+          <div
+            style={{
+              background: "black",
+              padding: "4px",
+            }}
+          >
+            <Label circular color="red" size="mini" style={{ fontSize: "0.4em" }} />
+            <Label circular color="green" size="mini" style={{ fontSize: "0.4em" }} />
+            <Label circular color="yellow" size="mini" style={{ fontSize: "0.4em" }} />
+            <Editor
+              value={code}
+              highlight={highlight}
+              padding={10}
+              id="exportComponent"
+              onValueChange={onValueChange}
+              style={styles}
+            />
+          </div>
+        </Segment>
       </Segment>
+      <footer className={homeStyles.footer}>
+        <h2 style={{ color: "orange", fontFamily: "VT323, monospace", fontSize: "2em" }}>
+          Welcome to our Code Editor
+        </h2>
+      </footer>
     </div>
   );
 };

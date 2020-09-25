@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useEffect, useRef } from "react";
 import Editor from "react-simple-code-editor";
 import Highlight, { defaultProps } from "prism-react-renderer";
-import theme from "prism-react-renderer/themes/dracula";
+import theme from "prism-react-renderer/themes/vsDark";
 import { Segment, Button, Dropdown, Label, Popup, Grid, Header, Icon } from "semantic-ui-react";
 import axios from "axios";
 
@@ -33,6 +33,7 @@ const Home = ({ _id, content, fontFamily, fontSize }) => {
   const exportRef = useRef();
   const [currentCode, setCurrentCode] = useState(exampleCode);
   const [code, setCode] = useState(exampleCode);
+  const [selectedTheme, setSelectedTheme] = useState();
   const [styles, setStyles] = useState({
     boxSizing: "border-box",
     fontFamily,
@@ -79,10 +80,13 @@ const Home = ({ _id, content, fontFamily, fontSize }) => {
         {({ className, style, tokens, getLineProps, getTokenProps }) => (
           <Fragment>
             {tokens.map((line, i) => (
-              <div {...getLineProps({ line, key: i })}>
+              <div key={i} {...getLineProps({ line, key: i })}>
+                {/* <LineNo>{i + 1}</LineNo> */}
+                {/* <LineContent> */}
                 {line.map((token, key) => (
                   <span {...getTokenProps({ token, key })} />
                 ))}
+                {/* </LineContent> */}
               </div>
             ))}
           </Fragment>
@@ -120,55 +124,70 @@ const Home = ({ _id, content, fontFamily, fontSize }) => {
   };
 
   const copyToCliboard = (e) => {
-    navigator.clipboard.writeText(textAreaRef.current.value);
+    navigator.clipboard.writeText(`${host}/${_id}`);
   };
 
   const exportCode = (e, { value }) => {
     console.log(value);
 
-    html2canvas(document.getElementById("exportComponent"), {
-      onrendered: (canvas) => {
-        console.log(canvas);
-        // let image = canvas.toDataURL("png");
-        // let a = document.createElement("a");
-        // a.setAttribute("download", "myImage.png");
-        // a.setAttribute("href", image);
-        // a.click();
-        var link = document.createElement("a");
-        document.body.appendChild(link);
-        link.download = "html_image.png";
-        link.href = canvas.toDataURL("image/png");
-        link.target = "_blank";
-        console.log(document.body);
-        link.click();
-        // // let el = document.getElementById(a.id);
-        // // el.parentNode.removeChild(el);
-        // console.log(a.id);
-        // var myImage = canvas.toDataURL("image/png");
-        // window.open(myImage, "Image");
-        // var a = document.createElement("a");
-        // // toDataURL defaults to png, so we need to request a jpeg, then convert for file download.
-        // a.href = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
-        // // document.body.appendChild(a);
-
-        // a.download = "somefilename.jpg";
-        // a.click();
-        // a.remove();
-        // console.log(a.remove());
-      },
+    const element = document.createElement("a");
+    const file = new Blob([document.getElementById("exportComponent").value], {
+      type: "text/plain;charset=utf-8",
     });
+    console.log(file);
+    element.href = URL.createObjectURL(file);
+    element.download = "myFile.txt";
+    document.body.appendChild(element);
+    element.click();
+
+    // html2canvas(document.getElementById("exportComponent"), {
+    //   onrendered: (canvas) => {
+    //     console.log(canvas);
+    //     var link = document.createElement("a");
+    //     document.body.appendChild(link);
+    //     link.download = "html_image.png";
+    //     link.href = canvas.toDataURL("image/png");
+    //     link.target = "_blank";
+    //     console.log(document.body);
+    //     link.click();
+    //   },
+    // });
   };
 
   const sizeOptions = [
-    { text: "12px", value: "12px", key: "12px", small: "12px" },
-    { text: "14px", value: "14px", key: "14px", medium: "14px" },
-    { text: "16px", value: "16px", key: "16px", large: "16px" },
-    { text: "18px", value: "18px", key: "18px", huge: "18px" },
+    {
+      text: "12px",
+      value: "12px",
+      key: "12px",
+      small: "12px",
+      style: { background: "#212F3D", color: "#fff" },
+    },
+    {
+      text: "14px",
+      value: "14px",
+      key: "14px",
+      medium: "14px",
+      style: { background: "#212F3D", color: "#fff" },
+    },
+    {
+      text: "16px",
+      value: "16px",
+      key: "16px",
+      large: "16px",
+      style: { background: "#212F3D", color: "#fff" },
+    },
+    {
+      text: "18px",
+      value: "18px",
+      key: "18px",
+      huge: "18px",
+      style: { background: "#212F3D", color: "#fff" },
+    },
   ];
 
   const languageOptions = [
-    { key: "jsx", text: "jsx", value: "jsx" },
-    { key: "java", text: "java", value: "java" },
+    { key: "jsx", text: "jsx", value: "jsx", style: { background: "#212F3D", color: "#fff" } },
+    { key: "java", text: "java", value: "java", style: { background: "#212F3D", color: "#fff" } },
   ];
 
   const exportOptions = [
@@ -185,20 +204,38 @@ const Home = ({ _id, content, fontFamily, fontSize }) => {
   ];
 
   const fontFamilyOptions = [
-    { key: "Inconsolata", text: "Inconsolata", value: "Inconsolata" },
-    { key: "Courier", text: "Courier", value: "Courier" },
-    { key: "Stylish", text: "Stylish", value: "Stylish" },
-    { key: "Kanit", text: "Kanit", value: "Kanit" },
+    {
+      key: "Inconsolata",
+      text: "Inconsolata",
+      value: "Inconsolata",
+      style: { background: "#212F3D", color: "#fff" },
+    },
+    {
+      key: "Courier",
+      text: "Courier",
+      value: "Courier",
+      style: { background: "#212F3D", color: "#fff" },
+    },
+    {
+      key: "Stylish",
+      text: "Stylish",
+      value: "Stylish",
+      style: { background: "#212F3D", color: "#fff" },
+    },
+    {
+      key: "Kanit",
+      text: "Kanit",
+      value: "Kanit",
+      style: { background: "#212F3D", color: "#fff" },
+    },
   ];
-
-  // const dom = new JSDOM(`<!DOCTYPE html><p>Hello world</p>`);
-  // console.log(dom.window.document.querySelector("p").textContent);
 
   return (
     <div>
       <Head>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.js"></script>
+        <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet" />
         <link
           href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@700&family=Quicksand:wght@500&family=Source+Code+Pro:ital,wght@1,600&display=swap"
           rel="stylesheet"
@@ -212,87 +249,123 @@ const Home = ({ _id, content, fontFamily, fontSize }) => {
           rel="stylesheet"
         />
       </Head>
-      <Segment style={{ background: "black", border: "1px solid #fff" }}>
-        <Dropdown
-          placeholder="select font size"
-          closeOnEscape={false}
-          defaultValue={styles.fontSize ? styles.fontSize : sizeOptions[0].value}
-          selection
-          options={sizeOptions}
-          onChange={increaseFontSize}
-        />
-        <Dropdown
-          placeholder="select font size"
-          closeOnEscape={false}
-          defaultValue={languageOptions[0].value}
-          selection
-          options={languageOptions}
-          onChange={selectLanguage}
-        />
-        <Dropdown
-          placeholder="select font family"
-          closeOnEscape={false}
-          defaultValue={styles.fontFamily ? styles.fontFamily : fontFamilyOptions[0].value}
-          selection
-          options={fontFamilyOptions}
-          onChange={selectFontFamily}
-        />
-        <Button.Group color="teal">
-          <Button>Export</Button>
-          <Dropdown
-            className="button icon"
-            floating
-            options={exportOptions}
-            trigger={<></>}
-            onChange={exportCode}
-          />
-        </Button.Group>
-        <Button primary onClick={saveCode}>
-          Save
-        </Button>
-        <Popup trigger={<Button>Share your code</Button>} flowing hoverable>
-          <Grid centered divided columns={1}>
-            <Grid.Column textAlign="center">
-              <Header as="h4">Copy the link</Header>
-              <input disabled ref={textAreaRef} value={`${host}/${_id}`} />
-              <Icon onClick={copyToCliboard} name="copy" />
-            </Grid.Column>
-          </Grid>
-        </Popup>
-      </Segment>
-      <div ref={exportRef}>
-        <Segment
-          padded
-          raised
+      <Grid centered>
+        <Header
+          as="h2"
           style={{
-            marginTop: "3em",
-            background: "#85C1E9",
-            padding: "40px",
+            color: "orange",
+            marginTop: "2em",
+            fontFamily: "VT323, monospace",
+            fontSize: "28px",
           }}
         >
-          <div
+          Code Heat
+        </Header>
+      </Grid>
+      <Segment
+        style={{
+          background: "#000",
+          border: "2px solid orange",
+          marginTop: "3em",
+          marginLeft: "0.7em",
+          marginRight: "0.2em",
+        }}
+      >
+        <Grid columns={5} celled="internally" centered style={{ marginTop: "2em" }}>
+          <Dropdown
+            placeholder="select font size"
+            closeOnEscape={false}
+            defaultValue={styles.fontSize ? styles.fontSize : sizeOptions[0].value}
+            selection
+            options={sizeOptions}
+            onChange={increaseFontSize}
+            style={{ color: "white", background: "#212F3D" }}
+          />
+          <Dropdown
+            placeholder="select font size"
+            closeOnEscape={false}
+            defaultValue={languageOptions[0].value}
+            selection
+            options={languageOptions}
+            onChange={selectLanguage}
+            style={{ color: "white", background: "#212F3D" }}
+          />
+          <Dropdown
+            placeholder="select font family"
+            closeOnEscape={false}
+            defaultValue={styles.fontFamily ? styles.fontFamily : fontFamilyOptions[0].value}
+            selection
+            options={fontFamilyOptions}
+            onChange={selectFontFamily}
+            style={{ color: "white", background: "#212F3D" }}
+          />
+
+          {/* <Button.Group color="teal">
+            <Button onClick={exportCode}>Export</Button> */}
+          {/* <Dropdown
+              className="button icon"
+              floating
+              options={exportOptions}
+              trigger={<></>}
+              
+            /> */}
+          {/* </Button.Group> */}
+          <Button primary onClick={saveCode}>
+            Save
+          </Button>
+          {/* <Popup trigger={<Button>Share your code</Button>} flowing hoverable>
+            <Grid centered divided columns={1}>
+              <Grid.Column textAlign="center">
+                <Header as="h4">Copy the link</Header>
+                <input disabled ref={textAreaRef} value={`${host}/${_id}`} />
+                <Icon onClick={copyToCliboard} name="copy" />
+              </Grid.Column>
+            </Grid>
+          </Popup> */}
+          <Icon
+            onClick={copyToCliboard}
+            name="copy"
+            size="big"
+            color="orange"
+            style={{ cursor: "pointer", marginTop: "3px" }}
+          ></Icon>
+        </Grid>
+        <div ref={exportRef}>
+          <Segment
+            padded
+            raised
             style={{
-              border: "1px solid black",
-              background: "black",
-              padding: "4px",
+              border: "1px solid orange",
+              marginTop: "3em",
+              background: "#B7950B",
+              padding: "40px",
             }}
           >
-            <Label circular color="red" size="mini" style={{ fontSize: "0.4em" }} />
-            <Label circular color="green" size="mini" style={{ fontSize: "0.4em" }} />
-            <Label circular color="yellow" size="mini" style={{ fontSize: "0.4em" }} />
-            <Editor
-              value={currentCode}
-              onValueChange={onValueChange}
-              highlight={highlight}
-              padding={10}
-              id="exportComponent"
-              style={styles}
-            />
-          </div>
-        </Segment>
-      </div>
+            <div
+              style={{
+                background: "black",
+                padding: "4px",
+              }}
+            >
+              <Label circular color="red" size="mini" style={{ fontSize: "0.4em" }} />
+              <Label circular color="green" size="mini" style={{ fontSize: "0.4em" }} />
+              <Label circular color="yellow" size="mini" style={{ fontSize: "0.4em" }} />
+              <Editor
+                id="exportComponent"
+                value={currentCode}
+                onValueChange={onValueChange}
+                highlight={highlight}
+                padding={10}
+                style={styles}
+              />
+            </div>
+          </Segment>
+        </div>
+      </Segment>
       <footer className={homeStyles.footer}>
-        <h2 style={{ color: "#fff" }}>Welcome to Code Editor</h2>
+        <h2 style={{ color: "orange", fontFamily: "VT323, monospace", fontSize: "2em" }}>
+          Welcome to our Code Editor
+        </h2>
       </footer>
     </div>
   );
