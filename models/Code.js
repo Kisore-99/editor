@@ -5,6 +5,10 @@ if (mongoose.connection) {
 }
 
 const codeSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
   fontFamily: {
     type: String,
     required: true,
