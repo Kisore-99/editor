@@ -228,7 +228,7 @@ const CodeEditor = ({ content, fontFamily, fontSize, _id, page }) => {
       style: { background: "#212F3D", color: "#fff" },
     },
   ];
-
+  console.log(styles.fontFamily.split(",")[0]);
   return (
     <div>
       <Head>
@@ -292,7 +292,11 @@ const CodeEditor = ({ content, fontFamily, fontSize, _id, page }) => {
           <Dropdown
             placeholder="select font family"
             closeOnEscape={false}
-            defaultValue={styles.fontFamily ? styles.fontFamily : fontFamilyOptions[0].value}
+            defaultValue={
+              styles.fontFamily.split(",")[0] !== ""
+                ? styles.fontFamily.split(",")[0]
+                : fontFamilyOptions[0].value
+            }
             selection
             options={fontFamilyOptions}
             onChange={selectFontFamily}
