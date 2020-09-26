@@ -31,7 +31,7 @@ export default function Home() {
     console.log(res.data);
     setSnippetName("");
     setModalOpen(!modalOpen);
-    if (res.data.success === true) {
+    if (window.location.href === `${window.location.href}/${res.data.data._id}`) {
       setSpinner("loaded");
     }
     console.log(res.data.success);
