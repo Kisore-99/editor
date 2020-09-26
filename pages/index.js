@@ -37,7 +37,12 @@ export default function Home() {
     console.log(res.data.success);
     router.push(`/${res.data.data._id}`);
   }
-  console.log(spinner);
+
+  useEffect(() => {
+    if (!modalOpen) {
+      setNameError(false);
+    }
+  }, [modalOpen]);
 
   return (
     <div
