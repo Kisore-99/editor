@@ -21,7 +21,7 @@ export default function Home() {
     setSpinner("loading");
     const res = await axios.post("/api/code", {
       name: snippetName,
-      fontFamily: "'courier', sans-serif",
+      fontFamily: "Courier, sans-serif",
       fontSize: "14px",
       content: `function greet(){
     console.log('welcome to code heat');
