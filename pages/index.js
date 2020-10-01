@@ -45,21 +45,12 @@ export default function Home() {
   }, [modalOpen]);
 
   return (
-    <div
-    // style={{
-    //   position: "absolute",
-    //   top: 0,
-    //   left: 0,
-    //   width: "100%",
-    //   height: "100%",
-    // }}
-    >
-      <div>
-        {/* <Particles
+    <>
+        <Particles
           params={{
             particles: {
               number: {
-                value: 8,
+                value: 80,
                 density: {
                   enable: true,
                   value_area: 800,
@@ -76,27 +67,27 @@ export default function Home() {
                 type: ["image", "circle"],
                 image: [
                   {
-                    src: "/atom.png",
+                    src: "",
                     height: 20,
                     width: 20,
                   },
                   {
-                    src: "/sublime.png",
+                    src: "",
                     height: 26,
                     width: 25,
                   },
                   {
-                    src: "/vscode.png",
+                    src: "",
                     height: 20,
                     width: 20,
                   },
                 ],
               },
               color: {
-                value: "#CCC",
+                value: "#ff7d1a",
               },
               size: {
-                value: 30,
+                value: 15,
                 random: false,
                 anim: {
                   enable: true,
@@ -108,16 +99,14 @@ export default function Home() {
             },
             retina_detect: false,
           }}
-        /> */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-          }}
-        >
+        /> 
+    <div  style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+    }}       >
           <Grid centered>
             <Header
               as="h2"
@@ -204,7 +193,6 @@ export default function Home() {
               </Modal>
             )}
         </div>
-      </div>
-    </div>
+  </>
   );
 }
