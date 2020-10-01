@@ -14,30 +14,30 @@ export default function Home() {
 
   async function createSnippet(e) {
     e.preventDefault();
-    if (snippetName === "") {
-      setNameError(true);
-      return;
-    }
-    setSpinner("loading");
-    const res = await axios.post("/api/code", {
-      name: snippetName,
-      fontFamily: "Courier, sans-serif",
-      fontSize: "14px",
-      content: `function greet(){
+    
+      if (snippetName === "") {
+        setNameError(true);
+        return;
+      }
+      setSpinner("loading");
+      const res = await axios.post("/api/code", {
+        name: snippetName,
+        fontFamily: "Courier, sans-serif",
+        fontSize: "14px",
+        content: `function greet(){
     console.log('welcome to code heat');
   }`,
-    });
+      });
 
-    console.log(res.data);
-    setSnippetName("");
-    setModalOpen(!modalOpen);
-    if (window.location.href === `${window.location.href}/${res.data.data._id}`) {
-      setSpinner("loaded");
-    }
-    console.log(res.data.success);
-    router.push(`/${res.data.data._id}`);
+      console.log(res.data);
+      setSnippetName("");
+      setModalOpen(!modalOpen);
+      if (window.location.href === `${window.location.href}/${res.data.data._id}`) {
+        setSpinner("loaded");
+      }
+      console.log(res.data.success);
+      router.push(`/${res.data.data._id}`);
   }
-
   useEffect(() => {
     if (!modalOpen) {
       setNameError(false);
@@ -158,43 +158,51 @@ export default function Home() {
               timeout={5000} //3 secs
             />
           ) : (
-            <Modal
-              dimmer="blurring"
-              open={modalOpen}
-              onClose={() => {
-                setModalOpen(!modalOpen);
-              }}
-            >
-              <Modal.Content>
-                {nameError ? (
-                  <Message error header="Snippet Name Error" content="Please enter a valid name" />
-                ) : null}
-                <div style={{ display: "flex", justifyContent: "center" }}>
-                  <Input
-                    type="text"
-                    value={snippetName}
-                    onChange={(e) => {
-                      setSnippetName(e.target.value);
+              <Modal
+                dimmer="blurring"
+                open={modalOpen}
+                onClose={() => {
+                  setModalOpen(!modalOpen);
+                }}
+              >
+                <Modal.Content>
+                  {nameError ? (
+                    <Message error header="Snippet Name Error" content="Please enter a valid name" />
+                  ) : null}
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <Input
+                      type="text"
+                      value={snippetName}
+                      onChange={(e) => {
+                        setSnippetName(e.target.value);
+                      }}
+                      onKeyUp = {(e)=>{
+                        console.log("hi");
+                        if(e.key==="Enter"){
+                          console.log("done");
+                          createSnippet(e);
+                        }
+                      }}
+                      placeholder="Give your snippet a name"
+                    />
+                  </div>
+                </Modal.Content>
+                <Modal.Actions>
+                  <Button color="orange"
+                    onClick={createSnippet}>
+                    CREATE
+                </Button>
+                  <Button
+                    color="black"
+                    onClick={() => {
+                      setModalOpen(!modalOpen);
                     }}
-                    placeholder="Give your snippet a name"
-                  />
-                </div>
-              </Modal.Content>
-              <Modal.Actions>
-                <Button color="orange" onClick={createSnippet}>
-                  CREATE
+                  >
+                    CLOSE
                 </Button>
-                <Button
-                  color="black"
-                  onClick={() => {
-                    setModalOpen(!modalOpen);
-                  }}
-                >
-                  CLOSE
-                </Button>
-              </Modal.Actions>
-            </Modal>
-          )}
+                </Modal.Actions>
+              </Modal>
+            )}
         </div>
       </div>
     </div>
