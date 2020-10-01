@@ -188,7 +188,7 @@ export default function Home() {
                   </div>
                 </Modal.Content>
                 <Modal.Actions>
-                  <Button color="black"
+                  <Button color="orange"
                     onClick={createSnippet}>
                     CREATE
                 </Button>
